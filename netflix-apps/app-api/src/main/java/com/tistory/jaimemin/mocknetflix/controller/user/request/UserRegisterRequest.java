@@ -1,5 +1,7 @@
 package com.tistory.jaimemin.mocknetflix.controller.user.request;
 
+import com.tistory.jaimemin.mocknetflix.annotation.PasswordEncryption;
+
 import lombok.Getter;
 
 @Getter
@@ -7,7 +9,8 @@ public class UserRegisterRequest {
 
 	private final String username;
 
-	private final String password;
+	@PasswordEncryption
+	private String password;
 
 	private final String email;
 
