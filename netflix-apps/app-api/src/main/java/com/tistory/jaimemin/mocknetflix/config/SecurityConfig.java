@@ -34,10 +34,10 @@ public class SecurityConfig {
 		httpSecurity.cors(cors -> cors.configurationSource(corsConfigurationSource()));
 		httpSecurity.userDetailsService(userDetailsService);
 		httpSecurity.authorizeHttpRequests(auth ->
-			auth.requestMatchers("/api/v1/user/register", "/api/v1/user/login").permitAll()
+			auth.requestMatchers("/api/v1/user/register", "/api/v1/user/login", "/api/v1/user/callback").permitAll()
 				.anyRequest().authenticated()
 		);
-		// httpSecurity.oauth2Login(oauth2 -> oauth2.failureUrl("/login?error=true"));
+		httpSecurity.oauth2Login(oauth2 -> oauth2.failureUrl("/login?error=true"));
 
 		return httpSecurity.build();
 	}

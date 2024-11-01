@@ -1,9 +1,9 @@
-package com.tistory.jaimemin.mocknetflix.repository;
+package com.tistory.jaimemin.mocknetflix.repository.sample;
 
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.tistory.jaimemin.mocknetflix.entity.SampleEntity;
+import com.tistory.jaimemin.mocknetflix.entity.sample.SampleEntity;
 import com.tistory.jaimemin.mocknetflix.sample.SamplePersistencePort;
 
 import lombok.RequiredArgsConstructor;

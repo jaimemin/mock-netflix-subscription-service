@@ -1,12 +1,12 @@
-package com.tistory.jaimemin.mocknetflix.repository;
+package com.tistory.jaimemin.mocknetflix.repository.sample;
 
 import java.util.List;
 
 import org.springframework.stereotype.Repository;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import com.tistory.jaimemin.mocknetflix.entity.QSampleEntity;
-import com.tistory.jaimemin.mocknetflix.entity.SampleEntity;
+import com.tistory.jaimemin.mocknetflix.entity.sample.QSampleEntity;
+import com.tistory.jaimemin.mocknetflix.entity.sample.SampleEntity;
 
 import lombok.RequiredArgsConstructor;
 
