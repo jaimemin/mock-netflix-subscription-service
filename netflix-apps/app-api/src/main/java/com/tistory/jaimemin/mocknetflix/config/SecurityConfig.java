@@ -1,5 +1,6 @@
 package com.tistory.jaimemin.mocknetflix.config;
 
+import java.util.Arrays;
 import java.util.Collections;
 
 import org.springframework.context.annotation.Bean;
@@ -11,9 +12,11 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 
+import com.tistory.jaimemin.mocknetflix.filter.JwtAuthenticationFilter;
 import com.tistory.jaimemin.mocknetflix.security.NetflixUserDetailsService;
 
 import lombok.RequiredArgsConstructor;
@@ -26,18 +29,26 @@ public class SecurityConfig {
 
 	private final NetflixUserDetailsService userDetailsService;
 
+	private final JwtAuthenticationFilter jwtAuthenticationFilter;
+
 	@Bean
 	public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
 		httpSecurity.httpBasic(AbstractHttpConfigurer::disable);
-		httpSecurity.formLogin(AbstractHttpConfigurer::disable);
 		httpSecurity.csrf(AbstractHttpConfigurer::disable);
+		httpSecurity.formLogin(AbstractHttpConfigurer::disable);
 		httpSecurity.cors(cors -> cors.configurationSource(corsConfigurationSource()));
-		httpSecurity.userDetailsService(userDetailsService);
-		httpSecurity.authorizeHttpRequests(auth ->
-			auth.requestMatchers("/api/v1/user/register", "/api/v1/user/login", "/api/v1/user/callback").permitAll()
-				.anyRequest().authenticated()
+		httpSecurity.authorizeHttpRequests(a ->
+			a.requestMatchers("/",
+					"/register",
+					"/api/v1/user/**",
+					"/api/v1/auth/**"
+				).permitAll()
+				.anyRequest().authenticated());
+		httpSecurity.oauth2Login(oauth2 -> oauth2
+			.failureUrl("/login?error=true")
 		);
-		httpSecurity.oauth2Login(oauth2 -> oauth2.failureUrl("/login?error=true"));
+		httpSecurity.userDetailsService(userDetailsService);
+		httpSecurity.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
 		return httpSecurity.build();
 	}
@@ -47,15 +58,16 @@ public class SecurityConfig {
 		return new BCryptPasswordEncoder();
 	}
 
-	private CorsConfigurationSource corsConfigurationSource() {
+	CorsConfigurationSource corsConfigurationSource() {
 		return request -> {
-			CorsConfiguration configuration = new CorsConfiguration();
-			configuration.setAllowedHeaders(Collections.singletonList("*"));
-			configuration.setAllowedMethods(Collections.singletonList("*"));
-			configuration.setAllowedOriginPatterns(Collections.singletonList("*"));
-			configuration.setAllowCredentials(true);
+			CorsConfiguration config = new CorsConfiguration();
+			config.setAllowedHeaders(Collections.singletonList("*"));
+			config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+			config.setAllowedOrigins(Collections.singletonList("http://localhost:3000"));
 
-			return configuration;
+			config.setAllowCredentials(true);
+
+			return config;
 		};
 	}
 }

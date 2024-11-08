@@ -36,7 +36,8 @@ public class MovieCustomRepositoryImpl implements MovieCustomRepository {
 			.offset(pageable.getOffset())
 			.limit(pageable.getPageSize())
 			.fetch();
-		long count = jpaQueryFactory.select(movieEntity)
+
+		long count = jpaQueryFactory.selectFrom(movieEntity)
 			.fetch()
 			.size();
 

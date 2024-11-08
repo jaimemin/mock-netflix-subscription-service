@@ -68,7 +68,7 @@ public class TokenService implements FetchTokenUseCase, CreateTokenUseCase, Upda
 	@Override
 	public UserResponse findUserByAccessToken(String accessToken) {
 		Claims claims = parseClaims(accessToken);
-		Object userId = claims.get("user_id");
+		Object userId = claims.get("userId");
 
 		if (ObjectUtils.isEmpty(userId)) {
 			throw new RuntimeException("Invalid access token");
