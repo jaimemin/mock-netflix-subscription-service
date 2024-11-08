@@ -17,5 +17,5 @@ spring:
   flyway:
     locations: classpath:flyway
     baseline-on-migrate: true
-    baseline-version: 2
+    baseline-version: 3
     enabled: true
