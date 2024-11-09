@@ -17,6 +17,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 
 import com.tistory.jaimemin.mocknetflix.filter.JwtAuthenticationFilter;
+import com.tistory.jaimemin.mocknetflix.filter.UserHistoryLoggingFilter;
 import com.tistory.jaimemin.mocknetflix.security.NetflixUserDetailsService;
 
 import lombok.RequiredArgsConstructor;
@@ -30,6 +31,8 @@ public class SecurityConfig {
 	private final NetflixUserDetailsService userDetailsService;
 
 	private final JwtAuthenticationFilter jwtAuthenticationFilter;
+
+	private final UserHistoryLoggingFilter userHistoryLoggingFilter;
 
 	@Bean
 	public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
@@ -49,6 +52,7 @@ public class SecurityConfig {
 		);
 		httpSecurity.userDetailsService(userDetailsService);
 		httpSecurity.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+		httpSecurity.addFilterAfter(userHistoryLoggingFilter, UsernamePasswordAuthenticationFilter.class);
 
 		return httpSecurity.build();
 	}
