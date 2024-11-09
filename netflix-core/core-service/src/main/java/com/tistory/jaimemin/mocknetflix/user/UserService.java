@@ -41,9 +41,11 @@ public class UserService implements FetchUserUseCase, RegisterUserUseCase {
 	public UserResponse findByProviderId(String providerId) {
 		return fetchUserPort.findByProviderId(providerId)
 			.map(it -> UserResponse.builder()
+				.userId(it.getUserId())
 				.username(it.getUsername())
 				.provider(it.getProvider())
 				.providerId(it.getProviderId())
+				.role(it.getRole())
 				.build())
 			.orElse(null);
 	}
@@ -84,7 +86,7 @@ public class UserService implements FetchUserUseCase, RegisterUserUseCase {
 			.map(user -> (UserRegistrationResponse)null) // 이미 존재하면 null 반환
 			.orElseGet(() -> {
 				UserPortResponse socialUser = insertUserPort.createSocialUser(username, provider, providerId);
-				
+
 				return new UserRegistrationResponse(socialUser.getUsername(), socialUser.getEmail(),
 					socialUser.getPhone());
 			});

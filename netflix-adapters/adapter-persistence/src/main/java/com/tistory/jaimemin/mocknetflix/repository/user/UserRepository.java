@@ -7,7 +7,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.tistory.jaimemin.mocknetflix.entity.user.SocialUserEntity;
 import com.tistory.jaimemin.mocknetflix.entity.user.UserEntity;
+import com.tistory.jaimemin.mocknetflix.repository.subscription.UserSubscriptionRepository;
 import com.tistory.jaimemin.mocknetflix.repository.user.social.SocialUserJpaRepository;
+import com.tistory.jaimemin.mocknetflix.subscription.UserSubscription;
 import com.tistory.jaimemin.mocknetflix.user.CreateUser;
 import com.tistory.jaimemin.mocknetflix.user.FetchUserPort;
 import com.tistory.jaimemin.mocknetflix.user.InsertUserPort;
@@ -24,6 +26,8 @@ public class UserRepository implements FetchUserPort, InsertUserPort {
 
 	private final SocialUserJpaRepository socialUserJpaRepository;
 
+	private final UserSubscriptionRepository userSubscriptionRepository;
+
 	@Override
 	public Optional<UserPortResponse> findByEmail(String email) {
 		return userJpaRepository.findByEmail(email)
@@ -38,12 +42,19 @@ public class UserRepository implements FetchUserPort, InsertUserPort {
 
 	@Override
 	public Optional<UserPortResponse> findByProviderId(String providerId) {
-		return socialUserJpaRepository.findByProviderId(providerId)
-			.map(socialUserEntity -> UserPortResponse.builder()
-				.username(socialUserEntity.getUsername())
+		return socialUserJpaRepository.findByProviderId(providerId).map(socialUserEntity -> {
+			UserSubscription userSubscription = userSubscriptionRepository.fetchByUserId(
+				socialUserEntity.getSocialUserId()
+			).orElseGet(() -> UserSubscription.newSubscription(socialUserEntity.getSocialUserId()));
+
+			return UserPortResponse.builder()
+				.userId(socialUserEntity.getSocialUserId())
 				.provider(socialUserEntity.getProvider())
 				.providerId(socialUserEntity.getProviderId())
-				.build());
+				.username(socialUserEntity.getUsername())
+				.role(userSubscription.getSubscriptionType().toRole())
+				.build();
+		});
 	}
 
 	@Override
@@ -56,6 +67,7 @@ public class UserRepository implements FetchUserPort, InsertUserPort {
 			user.getPhone()
 		);
 		UserEntity save = userJpaRepository.save(userEntity);
+		userSubscriptionRepository.create(userEntity.getUserId());
 
 		return UserPortResponse.builder()
 			.userId(save.getUserId())
@@ -71,6 +83,7 @@ public class UserRepository implements FetchUserPort, InsertUserPort {
 	public UserPortResponse createSocialUser(String username, String provider, String providerId) {
 		SocialUserEntity socialUserEntity = new SocialUserEntity(username, provider, providerId);
 		socialUserJpaRepository.save(socialUserEntity);
+		userSubscriptionRepository.create(socialUserEntity.getSocialUserId());
 
 		return UserPortResponse.builder()
 			.username(socialUserEntity.getUsername())
